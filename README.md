@@ -4,7 +4,7 @@
 * Has an implementation of minimax
 * Has implementation of alpha-beta-pruning with minimax
 
-# Flaws
+## Flaws
 
 * Cannot really see far enough ahead, in a reasonable amount of time
     Pit the minimax algorithm against itself to see it fall into the same trap
