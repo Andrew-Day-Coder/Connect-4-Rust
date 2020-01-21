@@ -50,7 +50,7 @@ fn main()
             break ai.get_info().get_winner();
         }
 
-        ai = ai.alpha_beta(8, MinimaxPlayer::MINIMIZING).unwrap();
+        ai = ai.alpha_beta(5, MinimaxPlayer::MINIMIZING).unwrap();
         println!("Computer Evaluation Value: {}", ai.get_positional_estimate().unwrap());
         println!(" 1  2  3  4  5  6  7  ");
         ai.get_info().print();

@@ -27,6 +27,13 @@ pub enum Player
     MAXIMIZING,
 }
 #[allow(dead_code)]
+struct MinimaxResult<InfoNode> where InfoNode: Evaluable<InfoNode>
+{
+    distance_from_zero_depth: u16,
+    distance_from_terminal_node: u16,
+    node: Option<Minimax<InfoNode>>,
+}
+#[allow(dead_code)]
 impl Player
 {
     fn get_other_player(&self) -> Player
@@ -36,6 +43,14 @@ impl Player
             Player::MINIMIZING => Player::MAXIMIZING,
             Player::MAXIMIZING => Player::MINIMIZING,
         }
+    }
+}
+#[allow(dead_code)]
+impl <InfoNode: Evaluable<InfoNode>> MinimaxResult<InfoNode>
+{
+    fn new(node: Option<Minimax<InfoNode>>, distance_from_zero_depth: u16, distance_from_terminal_node: u16) -> MinimaxResult<InfoNode>
+    {
+        MinimaxResult{node, distance_from_zero_depth, distance_from_terminal_node}
     }
 }
 #[allow(dead_code)]
@@ -75,7 +90,7 @@ impl<InfoNode: Evaluable<InfoNode>> Minimax<InfoNode>
         return self.value;
     }
     // actual minimax implementation
-    pub fn minimax(&mut self, depth: u16, player: Player) -> Option<Minimax<InfoNode>>
+    pub fn minimax(&mut self, depth: u16, player: Player) -> MinimaxResult<InfoNode>
     {
         // generate the nodes used for the next depth of the branch
         let children = self.info.get_children();
@@ -83,10 +98,11 @@ impl<InfoNode: Evaluable<InfoNode>> Minimax<InfoNode>
         if children.is_empty() || depth == 0 || self.info.is_terminal_state()
         {
             self.value = Some(self.info.evaluate());
-            return None;
+            return MinimaxResult::new(None, depth, 0);
         }
         // create a variable to store the best sub-node
         let mut best_child: Option<Minimax<InfoNode>> = None;
+        let mut best_result: MinimaxResult = MinimaxResult::new(children[0]);
 
         // storing the hueristic value of node here
         self.value = Some(Minimax::<InfoNode>::get_bound(&player));
