@@ -7,5 +7,4 @@
 ## Flaws
 
  Cannot really see far enough ahead, in a reasonable amount of time.
-
 Pit the minimax algorithm against itself to see it fall into the same trap every time.
