@@ -65,7 +65,6 @@ impl ConnectFour
             {
                 for col in 0..self.state[row].len()
                 {
-                        // vertical test
                     if  self.state[row    ][col] == player &&
                         self.state[row + 1][col] == player &&
                         self.state[row + 2][col] == player &&
@@ -104,15 +103,15 @@ impl ConnectFour
                     }
                 }
             }
-            // Note: there is a bug in the dectection here
-            for row in 3..self.state.len()
+            // other diagonal direction
+            for row in 0..self.state.len() - 3
             {
-                for col in 0..self.state[row].len() - 3
+                for col in 3..self.state[row].len()
                 {
-                    if  self.state[row - 3][col    ] == player &&
-                        self.state[row - 2][col + 1] == player &&
-                        self.state[row - 1][col + 2] == player &&
-                        self.state[row    ][col + 3] == player
+                    if  self.state[row    ][col    ] == player &&
+                        self.state[row + 1][col - 1] == player &&
+                        self.state[row + 2][col - 2] == player &&
+                        self.state[row + 3][col - 3] == player
                     {
                         return player;
                     }
