@@ -39,6 +39,11 @@ impl Player
     }
 }
 #[allow(dead_code)]
+struct MinimaxResult
+{
+
+}
+#[allow(dead_code)]
 impl<InfoNode: Evaluable<InfoNode>> Minimax<InfoNode>
 {
     /*
