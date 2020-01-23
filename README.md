@@ -11,7 +11,7 @@ Pit the minimax algorithm against itself to see it fall into the same trap every
 
 ### To Do
 
-* If the algorithm believes that it is going to lose then it should try to delay the loss
+* If the algorithm believes that it is going to lose then it should try to delay the loss (in progress)
 * Definitely needs some usability improvements.
 
 [![Run on Repl.it](https://repl.it/badge/github/Andrew-Day-Coder/Connect-4-Rust)](https://repl.it/github/Andrew-Day-Coder/Connect-4-Rust)
