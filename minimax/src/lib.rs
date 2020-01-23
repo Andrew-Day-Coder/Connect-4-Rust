@@ -28,7 +28,7 @@ pub enum Player
     MAXIMIZING,
 }
 #[allow(dead_code)]
-struct MinimaxResult<InfoNode: Evaluable<InfoNode>>
+pub struct MinimaxResult<InfoNode: Evaluable<InfoNode>>
 {
     distance_to_zero_depth: u16,
     distance_to_terminal_node: u16,
@@ -46,7 +46,6 @@ impl Player
         }
     }
 }
-#[allow(dead_code)]
 #[allow(dead_code)]
 impl<InfoNode: Evaluable<InfoNode>> MinimaxResult<InfoNode>
 {
@@ -98,6 +97,7 @@ impl<InfoNode: Evaluable<InfoNode>> Minimax<InfoNode>
     {
         return self.value;
     }
+    #[allow(clippy::collapsible_if)]
     // actual minimax implementation
     pub fn minimax(&mut self, depth: u16, player: Player) -> MinimaxResult<InfoNode>
     {
@@ -109,15 +109,17 @@ impl<InfoNode: Evaluable<InfoNode>> Minimax<InfoNode>
             self.value = Some(self.info.evaluate());
             return MinimaxResult::new(None, depth, 0);
         }
+        let mut child_iter = children.into_iter();
         // create a variable to store the best sub-node
         let mut best_child: Option<Minimax<InfoNode>> = None;
-        let mut best_result: MinimaxResult = MinimaxResult::new(children[0]);
+        // child_iter can be safely unwrapped, because the list is ensured to be non-empty
+        let mut best_result: MinimaxResult<InfoNode> = Minimax::new(child_iter.next().unwrap()).minimax(depth - 1, player.get_other_player());
 
         // storing the hueristic value of node here
         self.value = Some(Minimax::<InfoNode>::get_bound(&player));
 
         // iterate over
-        for child in children
+        for child in child_iter
         {
             // create a minimax node from the raw(info) child node
             let mut new_child = Minimax::new(child);
@@ -130,12 +132,17 @@ impl<InfoNode: Evaluable<InfoNode>> Minimax<InfoNode>
                player == Player::MINIMIZING && child_value <= self.value.unwrap() ||
                player == Player::MAXIMIZING && child_value >= self.value.unwrap()
             {
-                i
-                best_child = Some(new_child);
-                self.value = Some(child_value);
+                if  child_value == self.value.unwrap() &&
+                    child_minimax_result.get_distance_to_terminal_node() > best_result.get_distance_to_terminal_node() ||
+                    child_value != self.value.unwrap()
+                {
+                    best_result = child_minimax_result;
+                    best_child = Some(new_child);
+                    self.value = Some(child_value);
+                }
             }
         }
-        return best_child;
+        return MinimaxResult::new(best_child, best_result.get_distance_to_terminal_node() + 1, best_result.get_terminal_distance_to_zero_depth());
     }
     fn alpha_beta_with_arguments(&mut self,depth: u16, mut alpha: <InfoNode as Evaluable<InfoNode>>::EvalOutput, mut beta: <InfoNode as Evaluable<InfoNode>>::EvalOutput, player: Player) -> Option<Minimax<InfoNode>>
     {
