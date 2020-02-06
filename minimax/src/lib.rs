@@ -165,7 +165,7 @@ impl<InfoNode: Evaluable<InfoNode>> Minimax<InfoNode>
             // create a minimax node from the raw(info) child node
             let mut new_child = Minimax::new(child);
             // recursive call to minimax
-            new_child.minimax(depth - 1, player.get_other_player());
+            new_child.alpha_beta_with_arguments(depth - 1,alpha, beta, player.get_other_player());
             // get the heuristic value from the minimax evaluation
             let child_value = new_child.value.unwrap();
             // calcuate the best child node
