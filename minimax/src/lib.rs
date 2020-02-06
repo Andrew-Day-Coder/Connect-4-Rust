@@ -97,7 +97,26 @@ impl<InfoNode: Evaluable<InfoNode>> Minimax<InfoNode>
     {
         return self.value;
     }
-    
+    fn calculate_best_node(best_child: &mut Minimax<InfoNode>, mut new_child: Minimax<InfoNode>, best_result: &mut MinimaxResult<InfoNode>, depth: u16,  player: &Player)
+    {
+        let child_minimax_result = new_child.minimax(depth - 1, player.get_other_player());
+        let child_value = new_child.value.unwrap();
+
+        if (*player == Player::MINIMIZING && child_value <= best_child.value.unwrap() ||
+            *player == Player::MAXIMIZING && child_value >= best_child.value.unwrap()) &&
+           (child_value == best_child.value.unwrap() &&
+            child_minimax_result.get_distance_to_terminal_node() > best_result.get_distance_to_terminal_node() ||
+            child_value != best_child.value.unwrap())
+        {
+                //best_child = new_child;
+            *best_result = child_minimax_result;
+            *best_child = new_child;
+        }
+    }
+    fn create_new_result(best_child: Minimax<InfoNode>, best_result: MinimaxResult<InfoNode>) -> MinimaxResult<InfoNode>
+    {
+        MinimaxResult::new(Some(best_child), best_result.get_distance_to_terminal_node() + 1, best_result.get_terminal_distance_to_zero_depth())
+    }
     #[allow(clippy::collapsible_if)]
     pub fn minimax(&mut self, depth: u16, player: Player) -> MinimaxResult<InfoNode>
     {
@@ -116,34 +135,14 @@ impl<InfoNode: Evaluable<InfoNode>> Minimax<InfoNode>
         // child_iter can be safely unwrapped, because the list is ensured to be non-empty
         let mut best_result = best_child.minimax(depth - 1, player.get_other_player());
 
-        // storing the hueristic value of node here
-        self.value = best_child.value;
-
-        // iterate over
         for child in child_iter
         {
-            // create a minimax node from the raw(info) child node
-            let mut new_child = Minimax::new(child);
-            // recursive call to minimax
-            let child_minimax_result = new_child.minimax(depth - 1, player.get_other_player());
-            // get the heuristic value from the minimax evaluation
-            let child_value = new_child.value.unwrap();
-            // calcuate the best child node
-            if player == Player::MINIMIZING && child_value <= self.value.unwrap() ||
-               player == Player::MAXIMIZING && child_value >= self.value.unwrap()
-            {
-                if  child_value == self.value.unwrap() &&
-                    child_minimax_result.get_distance_to_terminal_node() > best_result.get_distance_to_terminal_node() ||
-                    child_value != self.value.unwrap()
-                {
-                    best_result = child_minimax_result;
-                    best_child = new_child;
-                    self.value = Some(child_value);
-                }
-            }
+            Minimax::calculate_best_node(&mut best_child, Minimax::new(child), &mut best_result, depth, &player);
         }
-        return MinimaxResult::new(Some(best_child), best_result.get_distance_to_terminal_node() + 1, best_result.get_terminal_distance_to_zero_depth());
+        self.value = best_child.value;
+        return Minimax::create_new_result(best_child, best_result);
     }
+
     fn alpha_beta_with_arguments(&mut self,depth: u16, mut alpha: <InfoNode as Evaluable<InfoNode>>::EvalOutput, mut beta: <InfoNode as Evaluable<InfoNode>>::EvalOutput, player: Player) -> Option<Minimax<InfoNode>>
     {
         // generate the nodes used for the next depth of the branch
